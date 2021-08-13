@@ -33,7 +33,7 @@ class Note {
   static Note fromJson(Map<String, Object?> json) => Note(
     id: json[NoteFields.id] as int?,
     number: json[NoteFields.number] as int,
-    title: json[NoteFields.time] as String,
+    title: json[NoteFields.title] as String,
     description: json[NoteFields.description] as String,
     isImportant: json[NoteFields.isImportant] == 1,
     createdTime: DateTime.parse(json[NoteFields.time] as String)
