@@ -49,7 +49,9 @@ class NoteFormWidget extends StatelessWidget {
             ),
             buildTitle(),
             SizedBox(height: 8,),
-            buildDescription(),
+            Container(
+              child: buildDescription(),
+            ),
             SizedBox(height: 16,)
           ],
         ),
@@ -75,18 +77,20 @@ class NoteFormWidget extends StatelessWidget {
         onChanged: onChangedTitle,
       );
 
-  Widget buildDescription() => TextFormField(
-        maxLines: 5,
-        initialValue: description,
-        style: TextStyle(color: Colors.white60, fontSize: 18),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: 'Type something...',
-          hintStyle: TextStyle(color: Colors.white60),
-        ),
-        validator: (title) => title != null && title.isEmpty
-            ? 'The description cannot be empty'
-            : null,
-        onChanged: onChangedDescription,
-      );
+  Widget buildDescription() {
+    return TextFormField(
+      initialValue: description,
+      maxLines: 9999,
+      style: TextStyle(color: Colors.white60, fontSize: 18),
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        hintText: 'Type something...',
+        hintStyle: TextStyle(color: Colors.white60),
+      ),
+      validator: (title) => title != null && title.isEmpty
+          ? 'The description cannot be empty'
+          : null,
+      onChanged: onChangedDescription,
+    );
+  }
 }

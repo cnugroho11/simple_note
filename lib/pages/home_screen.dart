@@ -6,6 +6,7 @@ import 'package:simple_note/db/notes_database.dart';
 import 'package:simple_note/pages/edit_note_screen.dart';
 import 'package:simple_note/pages/note_detail_screen.dart';
 import 'package:simple_note/widgets/note_card_widget.dart';
+import 'package:simple_note/widgets/note_container_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -14,12 +15,29 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {  
+class _HomeScreenState extends State<HomeScreen> {
+  ScrollController scrollController = ScrollController();
   late List<Note> notes;
   bool isLoading = false;
+  bool isFloating = true;
 
   @override
   void initState() {
+    scrollController.addListener(() {
+      if(scrollController.offset >= scrollController.position.maxScrollExtent 
+        && !scrollController.position.outOfRange) {
+          setState(() {
+            isFloating = false;
+          });
+        }
+        if(scrollController.position.pixels <= (MediaQuery.of(context).size.height
+        - MediaQuery.of(context).padding.top)  * (3/4)
+        && !scrollController.position.outOfRange) {
+          setState(() {
+            isFloating = true;
+          });
+        }
+    });
     super.initState();
     refreshNotes();
   }
@@ -37,57 +55,67 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(
-        'Notes',
-        style: TextStyle(fontSize: 24),
+  Widget build(BuildContext context) {
+    
+    return Scaffold(
+      backgroundColor: background,
+      appBar: AppBar(
+        backgroundColor: draculaGrey,
+        title: Text(
+          'Notes',
+          style: TextStyle(fontSize: 24),
+        ),
+        actions: [Icon(Icons.search), SizedBox(width: 12)],
       ),
-      actions: [Icon(Icons.search), SizedBox(width: 12)],
-    ),
-    body: Center(
-      child: isLoading
-          ? CircularProgressIndicator()
-          : notes.isEmpty
-          ? Text(
-        'No Notes',
-        style: TextStyle(color: Colors.white, fontSize: 24),
+      body: Center(
+        child: isLoading
+            ? CircularProgressIndicator()
+            : notes.isEmpty
+            ? Text(
+          'No Notes',
+          style: TextStyle(color: Colors.white, fontSize: 24),
+        )
+            : buildNotes(),
+      ),
+      floatingActionButton: Visibility(
+        child: FloatingActionButton(
+          backgroundColor: draculaGrey,
+          child: Icon(Icons.add),
+          onPressed: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => EditNoteScreen()),
+              );
+              refreshNotes();
+            },
+          ),
+        visible: isFloating,
       )
-          : buildNotes(),
-    ),
-    floatingActionButton: FloatingActionButton(
-      backgroundColor: Colors.black,
-      child: Icon(Icons.add),
-      onPressed: () async {
-        await Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => EditNoteScreen()),
+    );
+  }
+
+  Widget buildNotes() {
+    return StaggeredGridView.countBuilder(
+      controller: scrollController,
+      padding: EdgeInsets.all(8),
+      itemCount: notes.length,
+      staggeredTileBuilder: (index) => StaggeredTile.fit(2),
+      crossAxisCount: 4,
+      mainAxisSpacing: 4,
+      crossAxisSpacing: 4,
+      itemBuilder: (context, index) {
+        final note = notes[index];
+
+        return GestureDetector(
+          onTap: () async {
+            await Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => NoteDetailScreen(noteId: note.id!),
+            ));
+
+            refreshNotes();
+          },
+          child: NoteContainerWidget(note: note, index: index),
         );
-
-        refreshNotes();
       },
-    ),
-  );
-
-  Widget buildNotes() => StaggeredGridView.countBuilder(
-    padding: EdgeInsets.all(8),
-    itemCount: notes.length,
-    staggeredTileBuilder: (index) => StaggeredTile.fit(2),
-    crossAxisCount: 4,
-    mainAxisSpacing: 4,
-    crossAxisSpacing: 4,
-    itemBuilder: (context, index) {
-      final note = notes[index];
-
-      return GestureDetector(
-        onTap: () async {
-          await Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => NoteDetailScreen(noteId: note.id!),
-          ));
-
-          refreshNotes();
-        },
-        child: NoteCardWidget(note: note, index: index),
-      );
-    },
-  );
+    );
+  }
 }

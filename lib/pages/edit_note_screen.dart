@@ -29,7 +29,7 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
     isImportant = widget.note?.isImportant ?? false;
     number = widget.note?.number ?? 0;
     title = widget.note?.title ?? '';
-    description = widget.note?.title ?? '';
+    description = widget.note?.description ?? '';
   }
 
   @override
@@ -37,6 +37,7 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
+        backgroundColor: draculaGrey,
         actions: [buildButton()],
       ),
       body: Form(

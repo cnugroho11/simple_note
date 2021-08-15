@@ -38,6 +38,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
+        backgroundColor: draculaGrey,
         actions: [editButton(), deleteButton()],
       ),
       body: isLoading ? Center(child: CircularProgressIndicator())
