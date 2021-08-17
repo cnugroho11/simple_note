@@ -25,13 +25,15 @@ class NoteContainerWidget extends StatelessWidget {
           padding: EdgeInsets.all(5),
           width: double.infinity,
           decoration: BoxDecoration(
-            color: draculaPurple,
-            borderRadius: BorderRadius.all(Radius.circular(10))
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            border: Border.all(
+              color: draculaGrey
+            )
           ),
           child: Text(
             note.description,
             style: TextStyle(
-              color: Colors.black,
+              color: draculaWhite,
               
             ),
           )

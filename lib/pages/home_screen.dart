@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:simple_note/constant/theme.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:simple_note/model/note.dart';
@@ -19,25 +20,9 @@ class _HomeScreenState extends State<HomeScreen> {
   ScrollController scrollController = ScrollController();
   late List<Note> notes;
   bool isLoading = false;
-  bool isFloating = true;
 
   @override
   void initState() {
-    scrollController.addListener(() {
-      if(scrollController.offset >= scrollController.position.maxScrollExtent 
-        && !scrollController.position.outOfRange) {
-          setState(() {
-            isFloating = false;
-          });
-        }
-        if(scrollController.position.pixels <= (MediaQuery.of(context).size.height
-        - MediaQuery.of(context).padding.top)  * (3/4)
-        && !scrollController.position.outOfRange) {
-          setState(() {
-            isFloating = true;
-          });
-        }
-    });
     super.initState();
     refreshNotes();
   }
@@ -56,47 +41,55 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
+      extendBody: true,
       backgroundColor: background,
-      appBar: AppBar(
-        backgroundColor: draculaGrey,
-        title: Text(
-          'Notes',
-          style: TextStyle(fontSize: 24),
-        ),
-        actions: [Icon(Icons.search), SizedBox(width: 12)],
-      ),
       body: Center(
-        child: isLoading
-            ? CircularProgressIndicator()
-            : notes.isEmpty
-            ? Text(
+        child: isLoading ? CircularProgressIndicator() : notes.isEmpty 
+        ? Text( 
           'No Notes',
           style: TextStyle(color: Colors.white, fontSize: 24),
-        )
-            : buildNotes(),
+          ): buildNotes(),
       ),
-      floatingActionButton: Visibility(
-        child: FloatingActionButton(
-          backgroundColor: draculaGrey,
-          child: Icon(Icons.add),
-          onPressed: () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => EditNoteScreen()),
-              );
-              refreshNotes();
-            },
-          ),
-        visible: isFloating,
-      )
+      bottomNavigationBar: BottomAppBar(
+        notchMargin: 5,
+        shape: CircularNotchedRectangle(),
+        color: draculaGrey,
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent,
+          selectedItemColor: draculaGreen,
+          elevation: 0,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.note),
+              label: 'Regular'
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.lock),
+              label: 'Encrypted'
+            ),
+          ],
+        ),
+        
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: draculaPurple,
+        child: Icon(Icons.add,),
+        onPressed: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => EditNoteScreen()),
+          );
+          refreshNotes();
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Widget buildNotes() {
     return StaggeredGridView.countBuilder(
       controller: scrollController,
-      padding: EdgeInsets.all(8),
+      padding: EdgeInsets.only(top: 30, right: 8, left: 8, bottom: 70),
       itemCount: notes.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(2),
       crossAxisCount: 4,
@@ -104,13 +97,13 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisSpacing: 4,
       itemBuilder: (context, index) {
         final note = notes[index];
-
+    
         return GestureDetector(
           onTap: () async {
             await Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => NoteDetailScreen(noteId: note.id!),
             ));
-
+    
             refreshNotes();
           },
           child: NoteContainerWidget(note: note, index: index),
