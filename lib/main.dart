@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:simple_note/pages/splash_screen.dart';
-import 'package:simple_note/pages/home_screen.dart';
-import 'package:simple_note/constant/theme.dart';
+import 'package:simple_note/pages/home_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Montserrat',
       ),
-      home: HomeScreen(),
+      home: HomePage(),
     );
   }
 }

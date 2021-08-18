@@ -9,21 +9,22 @@ import 'package:simple_note/pages/note_detail_screen.dart';
 import 'package:simple_note/widgets/note_card_widget.dart';
 import 'package:simple_note/widgets/note_container_widget.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class RegularNotesPage extends StatefulWidget {
+  const RegularNotesPage({Key? key}) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _RegularNotesPageState createState() => _RegularNotesPageState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  ScrollController scrollController = ScrollController();
+class _RegularNotesPageState extends State<RegularNotesPage> {
   late List<Note> notes;
   bool isLoading = false;
+  bool isLongPress = false;
 
   @override
   void initState() {
     super.initState();
+    isLongPress = false;
     refreshNotes();
   }
 
@@ -42,71 +43,46 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
       backgroundColor: background,
       body: Center(
         child: isLoading ? CircularProgressIndicator() : notes.isEmpty 
         ? Text( 
           'No Notes',
           style: TextStyle(color: Colors.white, fontSize: 24),
-          ): buildNotes(),
+          ): regularNotes(),
       ),
-      bottomNavigationBar: BottomAppBar(
-        notchMargin: 5,
-        shape: CircularNotchedRectangle(),
-        color: draculaGrey,
-        child: BottomNavigationBar(
-          backgroundColor: Colors.transparent,
-          selectedItemColor: draculaGreen,
-          elevation: 0,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.note),
-              label: 'Regular'
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.lock),
-              label: 'Encrypted'
-            ),
-          ],
-        ),
-        
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: draculaPurple,
-        child: Icon(Icons.add,),
-        onPressed: () async {
-          await Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => EditNoteScreen()),
-          );
-          refreshNotes();
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
-  Widget buildNotes() {
+  Widget regularNotes() {
     return StaggeredGridView.countBuilder(
-      controller: scrollController,
       padding: EdgeInsets.only(top: 30, right: 8, left: 8, bottom: 70),
       itemCount: notes.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(2),
       crossAxisCount: 4,
-      mainAxisSpacing: 4,
+      mainAxisSpacing: 20,
       crossAxisSpacing: 4,
       itemBuilder: (context, index) {
         final note = notes[index];
     
         return GestureDetector(
-          onTap: () async {
-            await Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => NoteDetailScreen(noteId: note.id!),
-            ));
-    
-            refreshNotes();
+          onLongPress: () {
+            setState(() {
+              if(isLongPress) isLongPress = false;
+              else isLongPress = true;
+            });
           },
-          child: NoteContainerWidget(note: note, index: index),
+          onTap: () async {
+            if (isLongPress) {
+              isLongPress = false;
+            } else {
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => NoteDetailScreen(noteId: note.id!),
+              ));
+              refreshNotes();
+            }
+          },
+          child: NoteContainerWidget(note: note, index: index, isLongPress: isLongPress,),
         );
       },
     );

@@ -6,11 +6,13 @@ import 'package:simple_note/model/note.dart';
 class NoteContainerWidget extends StatelessWidget {
   final Note note;
   final int index;
+  final bool isLongPress;
 
   const NoteContainerWidget({ 
     Key? key,
     required this.note,
-    required this.index
+    required this.index,
+    required this.isLongPress
   }) : super(key: key);
 
   @override
@@ -27,14 +29,13 @@ class NoteContainerWidget extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(10)),
             border: Border.all(
-              color: draculaGrey
+              color: isLongPress ? draculaWhite : draculaGrey
             )
           ),
           child: Text(
             note.description,
             style: TextStyle(
               color: draculaWhite,
-              
             ),
           )
         ),
